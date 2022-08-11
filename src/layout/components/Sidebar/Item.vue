@@ -1,7 +1,7 @@
 <script>
 export default {
   name: 'MenuItem',
-  functional: true,
+  functional: true,  // funtianl Component- No data&this, Only Props
   props: {
     icon: {
       type: String,
@@ -12,6 +12,7 @@ export default {
       default: ''
     }
   },
+
   render(h, context) {
     const { icon, title } = context.props
     const vnodes = []
