@@ -13,10 +13,16 @@
             :tree-node="data"
             @delDepts="loadDepartments"
             @addDepts="addDepts"
+            @editDepts="editDepts"
           />
         </el-tree>
       </el-card>
-      <AddDept :show-dialog="showDialog" />
+      <AddDept
+        ref="addDept"
+        :show-dialog.sync="showDialog"
+        :tree-node="node"
+        @addDepts="loadDepartments"
+      />
     </div>
   </div>
 </template>
@@ -32,13 +38,13 @@ export default {
   name: "Departments",
   data() {
     return {
-      company: { name: "", manager: "负责人" }, // Company
+      company: { name: "", manager: "负责人", id: "" }, // Company
       departs: [], // departments info
       defaultProps: {
         label: "name",
       },
       showDialog: false, //show dialog
-      addedNode: null  // record current node
+      node: null, // record current node
     };
   },
   components: {
@@ -53,13 +59,22 @@ export default {
     async loadDepartments() {
       const result = await getDepartments();
 
-      this.company = { name: result.companyName };
+      this.company = { name: result.companyName, manager: "负责人", id: "" };
       this.departs = tranListToTreeData(result.depts, "");
     },
 
     async addDepts(treeNode) {
-      this.showDialog = true
-      this.addedNode = node
+      this.showDialog = true;
+
+      this.node = treeNode;
+    },
+
+    editDepts(currentNode) {
+      this.showDialog = true;
+      this.node = currentNode;
+
+      // Use child Compnent Method
+      this.$refs.addDept.getDepartDetail(this.node.id)
     },
   },
 };

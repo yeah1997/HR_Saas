@@ -55,10 +55,10 @@ export default {
             if(command === 'add') {
               this.$emit('addDepts', this.treeNode)
             }else if(command === 'edit') {
-
+              this.$emit('editDepts', this.treeNode)
             }else {
                 this.$confirm('Sure to Delte').then(()=> {
-                    return delDepartments(treeNode.id)
+                    return delDepartments(this.treeNode.id)
                 }).then(()=> {
                     this.$emit('delDepts')
                     this.$message.success("Delete successful")

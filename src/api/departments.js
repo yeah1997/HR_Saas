@@ -24,3 +24,22 @@ export function addDepartments(data) {
         data
     })
 }
+
+// delete departments  Detail
+export function getDepartDetail(id) {
+    return request({
+        method: "GET",
+        url: `/company/department/${id}`,
+    })
+}
+
+// update departments  Detail
+export function updateDepartments(data) {
+    return request({
+        method: "PUT",
+        url: `/company/department/${data.id}`,
+        data
+    })
+}
+
+
