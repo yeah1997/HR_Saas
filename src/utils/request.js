@@ -30,6 +30,7 @@ service.interceptors.request.use((config) => {
     return config
 }, (err) => {
     Message.error(err.message)
+    console.log(err);
     return Promise.reject(err) //Throw Err
 })
 
@@ -54,7 +55,9 @@ service.interceptors.response.use((res) => {
         Message.error(err.message)
         
     }
-
+    console.log("123", err);
+    store.dispatch('user/logout')
+    router.push('/')
     return Promise.reject(err)  // Throw Err
 
 })
