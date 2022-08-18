@@ -24,6 +24,22 @@
       <el-table v-loading="loading" :data="list">
         <el-table-column type="index" label="序号" sortable="" />
         <el-table-column prop="username" label="姓名" sortable="" />
+        <el-table-column width="120px" label="头像" align="center">
+          <template v-slot="{ row }">
+            <img
+              v-imgerror="require('@/assets/common/head.jpg')"
+              :src="row.staffPhoto"
+              @click="showQrCode(row.staffPhoto)"
+              alt=""
+              style="
+                border-radius: 50%;
+                width: 100px;
+                height: 100px;
+                padding: 10px;
+              "
+            />
+          </template>
+        </el-table-column>
         <el-table-column prop="workNumber" label="工号" sortable="" />
         <el-table-column
           prop="formOfEmployment"
@@ -44,7 +60,12 @@
         </el-table-column>
         <el-table-column label="操作" sortable="" fixed="right" width="280">
           <template slot-scope="{ row }">
-            <el-button type="text" size="small" @click="$router.push(`/employees/detail/${row.id}`)">查看</el-button>
+            <el-button
+              type="text"
+              size="small"
+              @click="$router.push(`/employees/detail/${row.id}`)"
+              >查看</el-button
+            >
             <el-button type="text" size="small">转正</el-button>
             <el-button type="text" size="small">调岗</el-button>
             <el-button type="text" size="small">离职</el-button>
@@ -67,12 +88,18 @@
       </el-row>
     </div>
     <AddEmployee :show-dialog.sync="showDialog" />
+    <el-dialog title="QR-Code" :visible.sync="showCodeDialog">
+      <el-row type="flex" justify="center">
+        <canvas ref="myCanvas" />
+      </el-row>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import { getEmployeeList, delEmployee } from "@/api/employees";
-import { formatDate } from '@/filters'
+import { formatDate } from "@/filters"
+import QrCode from "qrcode"
 
 import EmployeeEnum from "@/api/constant/employees";
 
@@ -90,6 +117,7 @@ export default {
       },
       loading: false,
       showDialog: false,
+      showCodeDialog: false,
     };
   },
   components: {
@@ -132,24 +160,26 @@ export default {
 
     // export Exel
     exportData() {
-
       // chiese-english
       const headers = {
-        "姓名": "username",
-        "手机号": "mobile",
-        "入职日期": "timeOfEntry",
-        "聘用形式": "formOfEmployment",
-        "转正日期": "correctionTime",
-        "工号": "workNumber",
-        "部门": "departmentName",
-      }
+        姓名: "username",
+        手机号: "mobile",
+        入职日期: "timeOfEntry",
+        聘用形式: "formOfEmployment",
+        转正日期: "correctionTime",
+        工号: "workNumber",
+        部门: "departmentName",
+      };
 
-      import("@/vendor/Export2Excel").then( async (excel) => {
-        const { rows } = await getEmployeeList({page:1, size: this.pageSet.total})
-        
-        const data = this.formatJson(headers ,rows)
-        const multiHeader = [['姓名', '主要信息', '', '', '', '', '部门']]
-        const merges = ["A1:A2", "B1:F1", "G1:G2"]
+      import("@/vendor/Export2Excel").then(async (excel) => {
+        const { rows } = await getEmployeeList({
+          page: 1,
+          size: this.pageSet.total,
+        });
+
+        const data = this.formatJson(headers, rows);
+        const multiHeader = [["姓名", "主要信息", "", "", "", "", "部门"]];
+        const merges = ["A1:A2", "B1:F1", "G1:G2"];
 
         excel.export_json_to_excel({
           header: Object.keys(headers),
@@ -161,24 +191,43 @@ export default {
         });
       });
     },
+
+    // Show QR-Code
+    showQrCode(url) {
+      if (url) {
+        this.showCodeDialog = true;
+        this.$nextTick(()=> {
+          QrCode.toCanvas(this.$refs.myCanvas, url)
+        })
+        
+      } else {
+        this.$message.warning("Need to upload avatar");
+      }
+    },
+
     // [{}] => [[]]
     formatJson(headers, rows) {
       // [["x", "x", "x"], ["x", "x", "x"]...]
-      return rows.map(item=> {  
+      return rows.map((item) => {
         // ["x", "x", "x"]
-        return Object.keys(headers).map(key=> {
-          if(headers[key] === "timeOfEntry" || headers[key] === "correctionTime") {
-            return formatDate(item[headers[key]])
-          }else if(headers[key] === "formOfEmployment") {
-            let hireObj = EmployeeEnum.hireType.find(obj=>obj.id === item[headers[key]])
-            return hireObj? hireObj.value : "Not defined"
+        return Object.keys(headers).map((key) => {
+          if (
+            headers[key] === "timeOfEntry" ||
+            headers[key] === "correctionTime"
+          ) {
+            return formatDate(item[headers[key]]);
+          } else if (headers[key] === "formOfEmployment") {
+            let hireObj = EmployeeEnum.hireType.find(
+              (obj) => obj.id === item[headers[key]]
+            );
+            return hireObj ? hireObj.value : "Not defined";
           }
-          return item[headers[key]]
-        })
-      })
+          return item[headers[key]];
+        });
+      });
 
       // return rows.map(row=> Object.keys(headers).map(key=> item[headers[key]]))
-    }
+    },
   },
 };
 </script>
