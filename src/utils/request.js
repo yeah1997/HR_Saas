@@ -9,7 +9,7 @@ const TimeOut = 3600   // Time for Token timeout
 
 const service = axios.create({
     baseURL: process.env.VUE_APP_BASE_API,  // Developer Mode: /api
-    timeout: 5000
+    timeout: 10000
 })
 
 // interceptors request

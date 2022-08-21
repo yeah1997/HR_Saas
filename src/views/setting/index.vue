@@ -33,7 +33,7 @@
               ></el-table-column>
               <el-table-column label="操作">
                 <template slot-scope="{ row }">
-                  <el-button size="samll" type="success">sss</el-button>
+                  <el-button size="samll" type="success">role</el-button>
                   <el-button
                     size="samll"
                     type="primary"

@@ -69,7 +69,7 @@
             <el-button type="text" size="small">转正</el-button>
             <el-button type="text" size="small">调岗</el-button>
             <el-button type="text" size="small">离职</el-button>
-            <el-button type="text" size="small">角色</el-button>
+            <el-button type="text" size="small" @click="editRole(row.id)">角色</el-button>
             <el-button type="text" size="small" @click="deleteEmployee(row.id)"
               >删除</el-button
             >
@@ -93,6 +93,7 @@
         <canvas ref="myCanvas" />
       </el-row>
     </el-dialog>
+    <AssignRole ref="assginRole" :show-role-dialog.sync="showRoleDialog" :user-id="userId"/>
   </div>
 </template>
 
@@ -102,7 +103,7 @@ import { formatDate } from "@/filters"
 import QrCode from "qrcode"
 
 import EmployeeEnum from "@/api/constant/employees";
-
+import AssignRole from "./components/assign-role.vue";
 import AddEmployee from "./components/add-employee.vue";
 
 export default {
@@ -118,10 +119,13 @@ export default {
       loading: false,
       showDialog: false,
       showCodeDialog: false,
+      showRoleDialog: false,
+      userId: "1"
     };
   },
   components: {
     AddEmployee,
+    AssignRole
   },
   created() {
     this.loadEmployeeList();
@@ -190,6 +194,13 @@ export default {
           bookType: "xlsx",
         });
       });
+    },
+
+    // Role
+    async editRole(id) {
+      this.userId = id
+      await this.$refs.assginRole.loadUserDetailById(id)
+      this.showRoleDialog = true
     },
 
     // Show QR-Code
