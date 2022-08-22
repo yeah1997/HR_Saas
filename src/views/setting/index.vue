@@ -33,7 +33,12 @@
               ></el-table-column>
               <el-table-column label="操作">
                 <template slot-scope="{ row }">
-                  <el-button size="samll" type="success">role</el-button>
+                  <el-button
+                    size="samll"
+                    type="success"
+                    @click="assignPerm(row.id)"
+                    >role</el-button
+                  >
                   <el-button
                     size="samll"
                     type="primary"
@@ -140,10 +145,32 @@
         </el-col>
       </el-row>
     </el-dialog>
+
+    <el-dialog title="分配权限" :visible="showPermDialog" @close="btnPermCancle">
+      <el-tree
+        :data="permData"
+        show-checkbox
+        :check-strictly="true"
+        node-key="id"
+        :default-checked-keys="selectCheck"
+        :props="defaultProps"
+        :default-expand-all="true"
+        ref="permTree"
+      >
+      </el-tree>
+      <el-row slot="footer" type="flex" justify="center">
+        <el-col :span="6">
+          <el-button type="primary" size="small" @click="btnPermOk">确定</el-button>
+          <el-button size="small" @click="btnPermCancle">取消</el-button>
+        </el-col>
+      </el-row>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import { getPermissionList, assignPerm } from "@/api/permission";
+import { tranListToTreeData } from "@/utils";
 import {
   getRoleList,
   getCompanyInfo,
@@ -173,6 +200,15 @@ export default {
       rules: {
         name: [{ required: true, message: "No Space", trigger: "blur" }],
       },
+
+      // Data about permission
+      showPermDialog: false,
+      permData: [],
+      defaultProps: {
+        label: "name",
+      },
+      roleId: null,
+      selectCheck: []
     };
   },
 
@@ -220,8 +256,8 @@ export default {
         name: "",
         description: "",
       };
-      this.$refs.roleForm.resetFields()
-      this.showDialog = false
+      this.$refs.roleForm.resetFields();
+      this.showDialog = false;
     },
     async btnOk() {
       try {
@@ -239,6 +275,32 @@ export default {
         console.log(err);
       }
     },
+
+    async assignPerm(id) {
+      this.permData = tranListToTreeData(await getPermissionList(), "0");
+      this.roleId = id;
+      const { permIds } = await getRoleDetail(id);
+      this.selectCheck = permIds
+      // console.log(permIds);
+      this.showPermDialog = true;
+    },
+
+    async btnPermOk() {
+      
+      await assignPerm({
+        permIds: this.$refs.permTree.getCheckedKeys(),
+        id: this.roleId
+      })
+
+      this.$message.success("Success Update Role ID")
+
+      // this.showPermDialog = false
+    },
+
+    btnPermCancle() {
+      this.selectCheck = []
+      this.showPermDialog = false
+    }
   },
 };
 </script>

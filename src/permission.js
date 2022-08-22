@@ -11,7 +11,7 @@ const whiteList = ['/login', '/404']  // white list
 router.beforeEach(async (to, from, next) => {
 
     nProgress.start()
-    
+
     // There's Token 
     if (store.getters.token) {
         // To login page
@@ -19,9 +19,16 @@ router.beforeEach(async (to, from, next) => {
             next('/')
         } else {
             if (!store.getters.userId) {
-                await store.dispatch('user/getUserInfo')
+                const { roles } = await store.dispatch('user/getUserInfo')
+                const routes = await store.dispatch('permission/filterRoutes', roles.menus)
+                // console.log(routes);
+
+                router.addRoutes([...routes, { path: '*', redirect: '/404', hidden: true }])
+                next(to.path)
+            }else {
+                next()
             }
-            next()
+            
         }
     } else {
         // There's no token && To noToken Page

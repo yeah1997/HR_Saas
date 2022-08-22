@@ -20,6 +20,8 @@ import '@/permission' // permission control
 
 import Components from '@/components'  // Global Components
 
+import CheckPermission from '@/mixin/checkPermission'
+
 /**
  * If you don't want to use mock-server
  * you want to use MockJs for mock api
@@ -39,6 +41,8 @@ Vue.use(ElementUI, { locale })
 Vue.use(Components)
 // 如果想要中文版 element-ui，按如下方式声明
 // Vue.use(ElementUI)
+
+Vue.mixin(CheckPermission)
 
 Vue.config.productionTip = false
 

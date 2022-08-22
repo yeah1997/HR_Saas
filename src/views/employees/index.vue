@@ -15,7 +15,11 @@
           <el-button size="small" type="danger" @click="exportData"
             >excal导出</el-button
           >
-          <el-button size="small" type="primary" @click="showDialog = true"
+          <el-button
+            size="small"
+            type="primary"
+            @click="showDialog = true"
+            :disabled="!checkPermission('POINT-USER-ADD')"
             >新增员工</el-button
           >
         </template>
@@ -64,12 +68,15 @@
               type="text"
               size="small"
               @click="$router.push(`/employees/detail/${row.id}`)"
+              :disabled="!checkPermission('POINT-USER-UPDATE')"
               >查看</el-button
             >
             <el-button type="text" size="small">转正</el-button>
             <el-button type="text" size="small">调岗</el-button>
             <el-button type="text" size="small">离职</el-button>
-            <el-button type="text" size="small" @click="editRole(row.id)">角色</el-button>
+            <el-button type="text" size="small" @click="editRole(row.id)"
+              >角色</el-button
+            >
             <el-button type="text" size="small" @click="deleteEmployee(row.id)"
               >删除</el-button
             >
@@ -93,14 +100,18 @@
         <canvas ref="myCanvas" />
       </el-row>
     </el-dialog>
-    <AssignRole ref="assginRole" :show-role-dialog.sync="showRoleDialog" :user-id="userId"/>
+    <AssignRole
+      ref="assginRole"
+      :show-role-dialog.sync="showRoleDialog"
+      :user-id="userId"
+    />
   </div>
 </template>
 
 <script>
 import { getEmployeeList, delEmployee } from "@/api/employees";
-import { formatDate } from "@/filters"
-import QrCode from "qrcode"
+import { formatDate } from "@/filters";
+import QrCode from "qrcode";
 
 import EmployeeEnum from "@/api/constant/employees";
 import AssignRole from "./components/assign-role.vue";
@@ -120,12 +131,12 @@ export default {
       showDialog: false,
       showCodeDialog: false,
       showRoleDialog: false,
-      userId: "1"
+      userId: "1",
     };
   },
   components: {
     AddEmployee,
-    AssignRole
+    AssignRole,
   },
   created() {
     this.loadEmployeeList();
@@ -198,19 +209,18 @@ export default {
 
     // Role
     async editRole(id) {
-      this.userId = id
-      await this.$refs.assginRole.loadUserDetailById(id)
-      this.showRoleDialog = true
+      this.userId = id;
+      await this.$refs.assginRole.loadUserDetailById(id);
+      this.showRoleDialog = true;
     },
 
     // Show QR-Code
     showQrCode(url) {
       if (url) {
         this.showCodeDialog = true;
-        this.$nextTick(()=> {
-          QrCode.toCanvas(this.$refs.myCanvas, url)
-        })
-        
+        this.$nextTick(() => {
+          QrCode.toCanvas(this.$refs.myCanvas, url);
+        });
       } else {
         this.$message.warning("Need to upload avatar");
       }
