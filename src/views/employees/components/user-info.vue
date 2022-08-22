@@ -483,10 +483,10 @@ export default {
       }
     },
     async savePersonal() {
-      const fileList = this.$$refs.myStaffPhoto.fileList;
-
+      const fileList = this.$refs.myStaffPhoto.fileList;
+      
       if (fileList.some((item) => !item.upload)) {
-        this.$message.warring("Not Finished!");
+        this.$message.warning("Not Finished!");
         return;
       }
 
@@ -502,7 +502,8 @@ export default {
 
       // Image upload is finished?
       if (fileList.some((item) => !item.upload)) {
-        this.$message.warring("Not Finished!");
+        console.log(fileList);
+        this.$message.warning("Not Finished!");
         return;
       }
       //  调用父组件
@@ -512,6 +513,7 @@ export default {
       });
       this.$message.success("保存成功");
     },
+
     async loadUserDetailById() {
       this.userInfo = await getUserDetailById(this.userId);
       if (this.userInfo.staffPhoto && this.userInfo.staffPhoto.trim()) {
